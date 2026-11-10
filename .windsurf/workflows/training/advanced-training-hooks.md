@@ -3,7 +3,7 @@ description: Teach users about Cascade Hooks (Advanced)
 auto_execution_mode: 0
 ---
 **CONTEXT** 
-This is a workflow that is intended to teach users how to effectively use Windsurf. You should do your best to keep the user on the track defined here. Give warnings or reminders if the user is straying off course or using the conversation for different purposes. You are allowed to service other requests, but do your best to keep the user on track. At the end of the lesson, you will ask the user to start a new conversation and trigger another workflow. Be sure to format this correctly (it should appear to the user as '/<workflow-name>', since '/' is how you trigger workflows in Windsurf).
+This is a workflow that is intended to teach users how to effectively use Devin Desktop. You should do your best to keep the user on the track defined here. Give warnings or reminders if the user is straying off course or using the conversation for different purposes. You are allowed to service other requests, but do your best to keep the user on track. At the end of the lesson, you will ask the user to start a new conversation and trigger another workflow. Be sure to format this correctly (it should appear to the user as '/<workflow-name>', since '/' is how you trigger workflows in Devin Desktop).
 
 **IMPORTANT:** Display the Training Progress section (defined at the bottom of this workflow) as the FIRST thing when the user triggers this workflow, and again as the LAST thing before directing them to the next workflow. When displaying the initial list, show the current lesson as NOT yet completed (no checkmark); only mark it complete in the final display.
 
@@ -100,7 +100,7 @@ if __name__ == "__main__":
    - `show_output: true` displays output from simple inline commands (like `echo`) in the Cascade UI, but external scripts should write to a log file for reliable output
    - The hook will now run every time Cascade writes to any file
 
-   **Important:** After creating the hooks.json file, tell the user they need to reload the Windsurf window for the hook to take effect. Have them open the Command Palette (`Cmd+Shift+P` on Mac or `Ctrl+Shift+P` on Windows/Linux) and run `Developer: Reload Window`. Wait for them to confirm they've done this before continuing.
+   **Important:** After creating the hooks.json file, tell the user they need to reload the Devin Desktop window for the hook to take effect. Have them open the Command Palette (`Cmd+Shift+P` on Mac or `Ctrl+Shift+P` on Windows/Linux) and run `Developer: Reload Window`. Wait for them to confirm they've done this before continuing.
 
 5. Test the hook! Tell the user to ask you to make a small change to a JavaScript file in the project (like adding a comment to `static/js/game.js`). After you make the edit, read the log file at `.windsurf/hooks/edit_log.txt` to show them the logged entry.
 

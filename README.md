@@ -1,8 +1,8 @@
-# Windsurf Demo App
+# Devin Desktop Demo App
 
-A demo application and tasks to demonstrate the power of the [Windsurf Editor](https://windsurf.com/).
+A demo application and tasks to demonstrate the power of [Devin Desktop](https://windsurf.com/).
 
-The application comes pre-loaded with a variety of workflows that will give you hands-on experience with Windsurf basics.
+The application comes pre-loaded with a variety of workflows that will give you hands-on experience with Devin Desktop basics.
 
 Topics covered include: 
 - Intro to Cascade
@@ -23,7 +23,7 @@ Topics covered include:
 - Advanced: CLI Tools *(optional)*
 - Advanced: Git Worktrees *(optional)*
 
-**To get started, simply clone the repo, open it in Windsurf, and type '/intro' into the Cascade input box!**
+**To get started, simply clone the repo, open it in Devin Desktop, and type '/intro' into the Cascade input box!**
 
 ## Prerequisites
 
@@ -35,7 +35,7 @@ Topics covered include:
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd windsurf-demo
+cd devin-demo
 ```
 
 2. Create and activate a virtual environment:
@@ -67,4 +67,4 @@ http://localhost:5000
 A: You may be in "Ask" mode instead of "Code" mode. Workflows can only be triggered in Code mode. Click the mode selector button at the bottom left of the Cascade input box and select "Code" mode, then try again.
 
 **Q: I see "Model provider unreachable" error in Cascade**  
-A: Close Windsurf completely and reopen it. You should be able to pick up where you left off in your training.
+A: Close Devin Desktop completely and reopen it. You should be able to pick up where you left off in your training.
