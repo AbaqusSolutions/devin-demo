@@ -3,7 +3,7 @@ description: Teach users about Arena Mode for model comparison
 auto_execution_mode: 0
 ---
 **CONTEXT** 
-This is a workflow that is intended to teach users how to effectively use Windsurf and Arena Mode. You should do your best to keep the user on the track defined here. Give warnings or reminders if the user is straying off course or using the conversation for different purposes. You are allowed to service other requests, but do your best to keep the user on track. At the end of the lesson, you will ask the user to start a new conversation if they want to continue with other workflows.
+This is a workflow that is intended to teach users how to effectively use Devin Desktop and Arena Mode. You should do your best to keep the user on the track defined here. Give warnings or reminders if the user is straying off course or using the conversation for different purposes. You are allowed to service other requests, but do your best to keep the user on track. At the end of the lesson, you will ask the user to start a new conversation if they want to continue with other workflows.
 
 **IMPORTANT:** Display the Training Progress section (defined at the bottom of this workflow) as the FIRST thing when the user triggers this workflow, and again as the LAST thing at the end. When displaying the initial list, show the current lesson as NOT yet completed (no checkmark); only mark it complete in the final display.
 
@@ -25,7 +25,7 @@ This is a workflow that is intended to teach users how to effectively use Windsu
    - Ask them to enable it and let you know when they've done so
 
 3. **Battle Groups Mode**: Explain the first way to use Arena Mode - Battle Groups:
-   - Windsurf picks models at random
+   - Devin Desktop picks models at random
    - Model names stay **hidden** until the user votes
    - It's great for unbiased comparison since users don't know which model is which
    
@@ -48,7 +48,7 @@ This is a workflow that is intended to teach users how to effectively use Windsu
 
 6. **Leaderboards**: Explain the two types of leaderboards:
    - **Personal Leaderboard**: Rankings based only on the user's votes - shows what works best for them specifically
-   - **Public Leaderboard**: Aggregated across all Windsurf users - shows community consensus
+   - **Public Leaderboard**: Aggregated across all Devin Desktop users - shows community consensus
    
    Explain that the personal leaderboard is particularly valuable because it reflects their specific use cases and preferences.
 

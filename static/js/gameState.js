@@ -8,7 +8,7 @@ export const gameState = {
         velocityX: 0,
         velocityY: 0
     }],
-    playerName: 'Windsurf',
+    playerName: 'Devin Desktop',
     camera: {
         x: 0,
         y: 0
