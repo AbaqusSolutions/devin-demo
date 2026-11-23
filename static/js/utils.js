@@ -1,14 +1,5 @@
-import { WORLD_SIZE } from './config.js';
-
 export function getSize(score) {
     return Math.sqrt(score) + 20;
-}
-
-export function getRandomPosition() {
-    return {
-        x: Math.random() * WORLD_SIZE,
-        y: Math.random() * WORLD_SIZE
-    };
 }
 
 export function getDistance(obj1, obj2) {
@@ -25,62 +16,4 @@ export function calculateCenterOfMass(cells) {
         x: cells.reduce((sum, cell) => sum + cell.x * cell.score, 0) / totalScore,
         y: cells.reduce((sum, cell) => sum + cell.y * cell.score, 0) / totalScore
     };
-}
-
-export function findSafeSpawnLocation(gameState, minDistance = 100) {
-    const maxAttempts = 50;
-    let attempts = 0;
-    
-    while (attempts < maxAttempts) {
-        const pos = getRandomPosition();
-        let isSafe = true;
-
-        // Check distance from AI players
-        for (const ai of gameState.aiPlayers) {
-            const distance = getDistance(pos, ai);
-            const safeDistance = getSize(ai.score) + minDistance;
-            if (distance < safeDistance) {
-                isSafe = false;
-                break;
-            }
-        }
-
-        // Check distance from player cells
-        for (const cell of gameState.playerCells) {
-            const distance = getDistance(pos, cell);
-            const safeDistance = getSize(cell.score) + minDistance;
-            if (distance < safeDistance) {
-                isSafe = false;
-                break;
-            }
-        }
-
-        if (isSafe) {
-            return pos;
-        }
-
-        attempts++;
-    }
-
-    // If no safe spot found after max attempts, find the spot furthest from all players
-    let bestPos = getRandomPosition();
-    let maxMinDistance = 0;
-
-    for (let i = 0; i < 20; i++) {
-        const pos = getRandomPosition();
-        let minDistanceToPlayer = Infinity;
-
-        // Check distance to all players and cells
-        [...gameState.aiPlayers, ...gameState.playerCells].forEach(entity => {
-            const distance = getDistance(pos, entity);
-            minDistanceToPlayer = Math.min(minDistanceToPlayer, distance);
-        });
-
-        if (minDistanceToPlayer > maxMinDistance) {
-            maxMinDistance = minDistanceToPlayer;
-            bestPos = pos;
-        }
-    }
-
-    return bestPos;
 }

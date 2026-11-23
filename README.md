@@ -59,7 +59,55 @@ python3 app.py
 http://localhost:5000
 ```
 
-6. Play the game!
+6. Enter a name and play the game!
+
+## Multiplayer
+
+The game runs on a single shared world hosted by the Flask server (Flask-SocketIO over WebSockets). The server simulates everything (movement, splitting, collisions, bots) and broadcasts snapshots to every connected browser; the browser only renders and sends mouse direction / split input.
+
+- **Play locally with friends:** open `http://localhost:5000` in several tabs, each with its own name.
+- **Play over your LAN:** start the server with `HOST=0.0.0.0 python3 app.py` and have others open `http://<your-ip>:5000`.
+- Bots fill the world when few humans are connected and make room as more people join.
+
+Optional environment variables:
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `HOST` | `127.0.0.1` | Interface the server binds to |
+| `PORT` | `5000` | Server port |
+| `SECRET_KEY` | random per run | Flask secret key |
+| `CORS_ALLOWED_ORIGINS` | same origin only | Comma-separated origins allowed to open a WebSocket |
+| `FLASK_DEBUG` | off | Set to `1` for debug mode |
+
+## Running Tests
+
+```bash
+pip3 install -r requirements-dev.txt
+python3 -m pytest        # server game logic + socket events
+npm test                 # client utilities and interpolation
+```
+
+### Browser regression test
+
+The Playwright test opens a **visible Chromium window** (not headless) and
+replays a left-click split against a local, deterministic multiplayer world.
+Alice starts at 100 points; after splitting, a 50-point cell must eat a
+49-point player named Bob. The test checks that Bob disappears and Alice
+finishes with 249 points. It needs a desktop session with a graphical display.
+
+```bash
+pip3 install -r requirements-dev.txt
+npm install
+npx playwright install chromium
+npm run test:e2e
+```
+
+Playwright starts and stops its own test server on `127.0.0.1:51237`. If your
+Python environment is not in `venv/`, set `E2E_PYTHON` to its interpreter.
+On failure, see `test-results/` for a screenshot and trace; inspect the trace
+with `npx playwright show-trace <path-to-trace.zip>`. The test reproduces the
+old bug when the server collision threshold is 1.1 and passes with the
+strictly-greater-size rule.
 
 ## FAQ / Troubleshooting
 

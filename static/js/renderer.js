@@ -60,53 +60,56 @@ function drawCellWithName(x, y, score, color, name) {
     }
 }
 
+function getMyPlayer() {
+    return gameState.players.find(p => p.id === gameState.myId);
+}
+
 export function drawGame() {
     if (!ctx) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Update camera to follow player's center of mass
-    const centerOfMass = calculateCenterOfMass(gameState.playerCells);
-    gameState.camera.x = centerOfMass.x - canvas.width / 2;
-    gameState.camera.y = centerOfMass.y - canvas.height / 2;
+    // Follow own center of mass while alive; otherwise keep the last camera position
+    const me = getMyPlayer();
+    if (me && me.cells.length > 0) {
+        const centerOfMass = calculateCenterOfMass(me.cells);
+        gameState.camera.x = centerOfMass.x - canvas.width / 2;
+        gameState.camera.y = centerOfMass.y - canvas.height / 2;
+    }
 
     // Draw food
-    gameState.food.forEach(food => {
-        const screenX = food.x - gameState.camera.x;
-        const screenY = food.y - gameState.camera.y;
+    gameState.food.forEach(([x, y, color]) => {
+        const screenX = x - gameState.camera.x;
+        const screenY = y - gameState.camera.y;
         
         if (screenX >= -FOOD_SIZE && screenX <= canvas.width + FOOD_SIZE &&
             screenY >= -FOOD_SIZE && screenY <= canvas.height + FOOD_SIZE) {
-            drawCircle(screenX, screenY, FOOD_SIZE, food.color, true);
+            drawCircle(screenX, screenY, FOOD_SIZE, color, true);
         }
     });
 
-    // Draw AI players
-    gameState.aiPlayers.forEach(ai => {
-        const screenX = ai.x - gameState.camera.x;
-        const screenY = ai.y - gameState.camera.y;
-        const size = getSize(ai.score);
-        
-        if (screenX >= -size && screenX <= canvas.width + size &&
-            screenY >= -size && screenY <= canvas.height + size) {
-            drawCellWithName(screenX, screenY, ai.score, ai.color, ai.name);
-        }
-    });
+    // Draw every player's cells, smallest first so bigger cells render on top
+    const cells = gameState.players.flatMap(player => player.cells.map(cell => ({
+        ...cell,
+        name: player.name,
+        color: player.id === gameState.myId ? COLORS.PLAYER : player.color
+    })));
+    cells.sort((a, b) => a.score - b.score);
 
-    // Draw player cells
-    gameState.playerCells.forEach(cell => {
+    cells.forEach(cell => {
         const screenX = cell.x - gameState.camera.x;
         const screenY = cell.y - gameState.camera.y;
         const size = getSize(cell.score);
         
         if (screenX >= -size && screenX <= canvas.width + size &&
             screenY >= -size && screenY <= canvas.height + size) {
-            drawCellWithName(screenX, screenY, cell.score, COLORS.PLAYER, gameState.playerName);
+            drawCellWithName(screenX, screenY, cell.score, cell.color, cell.name);
         }
     });
 
     // Update score display
-    scoreElement.textContent = `Score: ${Math.floor(gameState.playerCells.reduce((sum, cell) => sum + cell.score, 0))}`;
+    const myScore = me ? me.cells.reduce((sum, cell) => sum + cell.score, 0) : 0;
+    scoreElement.textContent = `Score: ${Math.floor(myScore)}`;
 }
 
 export function drawMinimap() {
@@ -125,63 +128,41 @@ export function drawMinimap() {
     minimapCtx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
     minimapCtx.strokeRect(viewX, viewY, viewWidth, viewHeight);
 
-    // Draw AI players on minimap
-    gameState.aiPlayers.forEach(ai => {
-        minimapCtx.beginPath();
-        minimapCtx.arc(
-            ai.x * scale,
-            ai.y * scale,
-            2,
-            0,
-            Math.PI * 2
-        );
-        minimapCtx.fillStyle = COLORS.MINIMAP.OTHER;
-        minimapCtx.fill();
-    });
+    const topPlayerId = gameState.leaderboard[0]?.id;
 
-    // Draw player cells on minimap
-    gameState.playerCells.forEach(cell => {
-        minimapCtx.beginPath();
-        minimapCtx.arc(
-            cell.x * scale,
-            cell.y * scale,
-            3,
-            0,
-            Math.PI * 2
-        );
-        minimapCtx.fillStyle = COLORS.MINIMAP.PLAYER;
-        minimapCtx.fill();
+    gameState.players.forEach(player => {
+        const isMe = player.id === gameState.myId;
+        let color = COLORS.MINIMAP.OTHER;
+        if (isMe) color = COLORS.MINIMAP.PLAYER;
+        else if (player.id === topPlayerId) color = COLORS.MINIMAP.TOP_PLAYER;
+
+        player.cells.forEach(cell => {
+            minimapCtx.beginPath();
+            minimapCtx.arc(cell.x * scale, cell.y * scale, isMe ? 3 : 2, 0, Math.PI * 2);
+            minimapCtx.fillStyle = color;
+            minimapCtx.fill();
+        });
     });
 }
 
 export function updateLeaderboard() {
     if (!leaderboardContent) return;
 
-    const playerTotalScore = gameState.playerCells.reduce((sum, cell) => sum + cell.score, 0);
-    
-    // Combine player score with AI scores
-    const allPlayers = [
-        { 
-            name: gameState.playerName,
-            score: playerTotalScore,
-            isPlayer: true
-        },
-        ...gameState.aiPlayers.map(ai => ({
-            name: ai.name,
-            score: ai.score,
-            isPlayer: false
-        }))
-    ];
+    // Built with DOM nodes + textContent: player names are user input
+    const rows = gameState.leaderboard.map((player, index) => {
+        const row = document.createElement('div');
+        row.className = 'leaderboard-item';
 
-    allPlayers.sort((a, b) => a.score - b.score);
-    
-    leaderboardContent.innerHTML = allPlayers
-        .slice(0, 5)
-        .map((player, index) => `
-            <div class="leaderboard-item">
-                <span class="${player.isPlayer ? 'player-name' : ''}">${index + 1}. ${player.name}</span>
-                <span>${Math.floor(player.score)}</span>
-            </div>
-        `)
-        .join('');
+        const name = document.createElement('span');
+        if (player.id === gameState.myId) name.className = 'player-name';
+        name.textContent = `${index + 1}. ${player.name}`;
+
+        const score = document.createElement('span');
+        score.textContent = Math.floor(player.score);
+
+        row.append(name, score);
+        return row;
+    });
+
+    leaderboardContent.replaceChildren(...rows);
 }

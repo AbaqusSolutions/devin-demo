@@ -1,8 +1,12 @@
 import { gameState, mouse } from './gameState.js';
 import { initRenderer, resizeCanvas, drawGame, drawMinimap, updateLeaderboard } from './renderer.js';
-import { updatePlayer, updateAI, initEntities, handlePlayerSplit } from './entities.js';
-import { handleFoodCollisions, handlePlayerAICollisions, handleAIAICollisions, respawnEntities } from './collisions.js';
+import { interpolatePlayers } from './interpolation.js';
+import { initNetwork, join, sendInput, sendSplit } from './network.js';
 import { initUI } from './ui.js';
+
+const NAME_STORAGE_KEY = 'playerName';
+
+let joinScreen, joinForm, nameInput, joinTitle;
 
 function setupInputHandlers() {
     const canvas = document.getElementById('gameCanvas');
@@ -14,8 +18,8 @@ function setupInputHandlers() {
     });
 
     // Mouse click for splitting
-    canvas.addEventListener('click', (e) => {
-        handlePlayerSplit();
+    canvas.addEventListener('click', () => {
+        if (gameState.alive) sendSplit();
     });
 
     // Window resize
@@ -24,34 +28,64 @@ function setupInputHandlers() {
     });
 }
 
-function checkCollisions() {
-    handleFoodCollisions();
-    handlePlayerAICollisions();
-    handleAIAICollisions();
-    respawnEntities();
+function showJoinScreen(title) {
+    gameState.alive = false;
+    joinTitle.textContent = title;
+    joinScreen.classList.add('visible');
+    nameInput.focus();
 }
 
-function verifyGameState() {
-    console.log('Verifying game state...');
-    console.log('Player cells:', gameState.playerCells);
-    console.log('AI players:', gameState.aiPlayers);
-    console.log('Food count:', gameState.food.length);
+function setupJoinScreen() {
+    joinScreen = document.getElementById('join-screen');
+    joinForm = document.getElementById('join-form');
+    nameInput = document.getElementById('name-input');
+    joinTitle = document.getElementById('join-title');
 
-    if (gameState.playerCells.length === 0) {
-        console.error('No player cells found!');
-    }
-    if (gameState.aiPlayers.length === 0) {
-        console.error('No AI players found!');
-    }
-    if (gameState.food.length === 0) {
-        console.error('No food found!');
-    }
+    nameInput.value = localStorage.getItem(NAME_STORAGE_KEY) || '';
+    joinForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = nameInput.value.trim();
+        localStorage.setItem(NAME_STORAGE_KEY, name);
+        join(name);
+    });
+}
+
+function setupNetwork() {
+    initNetwork({
+        onWelcome: ({ id }) => {
+            gameState.myId = id;
+            gameState.alive = true;
+            joinScreen.classList.remove('visible');
+        },
+        onState: (snapshot) => {
+            gameState.prevSnapshot = gameState.currSnapshot;
+            gameState.currSnapshot = { ...snapshot, receivedAt: performance.now() };
+        },
+        onDied: () => showJoinScreen('You were eaten! Play again?'),
+        onDisconnect: () => showJoinScreen('Connection lost. Reconnecting...')
+    });
+}
+
+function updateView() {
+    const { prevSnapshot: prev, currSnapshot: curr } = gameState;
+    if (!curr) return;
+
+    const interval = prev ? curr.receivedAt - prev.receivedAt : 0;
+    const alpha = interval > 0 ? (performance.now() - curr.receivedAt) / interval : 1;
+
+    gameState.players = interpolatePlayers(prev, curr, alpha);
+    gameState.food = curr.food;
+    gameState.leaderboard = curr.leaderboard;
+}
+
+function sendMouseDirection() {
+    if (!gameState.alive) return;
+    sendInput(mouse.x - window.innerWidth / 2, mouse.y - window.innerHeight / 2);
 }
 
 function gameLoop() {
-    updatePlayer();
-    updateAI();
-    checkCollisions();
+    sendMouseDirection();
+    updateView();
     updateLeaderboard();
     drawGame();
     drawMinimap();
@@ -85,18 +119,17 @@ async function initGame() {
         
         setupInputHandlers();
         console.log('Input handlers set up');
-        
-        initEntities();
-        console.log('Entities initialized');
+
+        setupJoinScreen();
+        setupNetwork();
+        console.log('Connected to server');
 
         initUI();
         console.log('UI initialized');
 
-        // Verify game state
-        verifyGameState();
-
         // Start game loop
         console.log('Starting game loop');
+        showJoinScreen('Join the game');
         gameLoop();
     } catch (error) {
         console.error('Error initializing game:', error);
