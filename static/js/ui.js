@@ -1,22 +1,24 @@
 // UI Controls
 
-function loadDarkMode() {
-    const isDarkMode = localStorage.getItem('darkMode') === 'true';
-    document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : '');
-    document.getElementById('dark-mode-toggle').checked = isDarkMode;
+function applyFx(enabled) {
+    document.documentElement.dataset.fx = enabled ? 'on' : 'off';
+    document.getElementById('fx-toggle').checked = enabled;
 }
 
-function saveDarkMode(isDarkMode) {
-    localStorage.setItem('darkMode', isDarkMode);
+function loadFx() {
+    const saved = localStorage.getItem('fxEnabled');
+    const enabled = saved !== null
+        ? saved === 'true'
+        : !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    applyFx(enabled);
 }
 
 export function initUI() {
     const settingsIcon = document.getElementById('settings-icon');
     const settingsPanel = document.getElementById('settings-panel');
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const fxToggle = document.getElementById('fx-toggle');
 
-    // Load dark mode preference
-    loadDarkMode();
+    loadFx();
 
     // Toggle settings panel
     settingsIcon.addEventListener('click', (e) => {
@@ -36,10 +38,9 @@ export function initUI() {
         e.stopPropagation();
     });
 
-    // Handle dark mode toggle
-    darkModeToggle.addEventListener('change', (e) => {
-        const isDarkMode = e.target.checked;
-        document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : '');
-        saveDarkMode(isDarkMode);
+    fxToggle.addEventListener('change', (e) => {
+        const enabled = e.target.checked;
+        applyFx(enabled);
+        localStorage.setItem('fxEnabled', enabled);
     });
 }
