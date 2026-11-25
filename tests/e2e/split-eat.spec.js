@@ -3,13 +3,13 @@ const { test, expect } = require('@playwright/test');
 async function join(page, name) {
   await page.goto('/');
   await page.locator('#name-input').fill(name);
-  await page.getByRole('button', { name: 'Play' }).click();
+  await page.getByRole('button', { name: 'JACK IN' }).click();
   await expect(page.locator('#join-screen')).toBeHidden();
 }
 
 test('a split cell eats a slightly smaller player after a left click', async ({ page }) => {
   await join(page, 'Alice');
-  await expect(page.locator('#score')).toHaveText('Score: 100');
+  await expect(page.locator('#score')).toHaveText('CREDITS: 100');
   await expect.poll(() => page.evaluate(async () => {
     const { gameState } = await import('/static/js/gameState.js');
     return gameState.currSnapshot?.players.map(p => [p.name, ...p.cells[0].slice(0, 2)]);
@@ -26,7 +26,7 @@ test('a split cell eats a slightly smaller player after a left click', async ({ 
   }), { timeout: 3000 }).toBe(2);
 
   await expect(page.locator('#leaderboard-content')).not.toContainText('Bob', { timeout: 3000 });
-  await expect(page.locator('#score')).toHaveText('Score: 249');
+  await expect(page.locator('#score')).toHaveText('CREDITS: 249');
 
   await page.waitForTimeout(1000);
 });

@@ -31,6 +31,7 @@ function setupInputHandlers() {
 function showJoinScreen(title) {
     gameState.alive = false;
     joinTitle.textContent = title;
+    joinTitle.dataset.text = title;
     joinScreen.classList.add('visible');
     nameInput.focus();
 }
@@ -61,8 +62,8 @@ function setupNetwork() {
             gameState.prevSnapshot = gameState.currSnapshot;
             gameState.currSnapshot = { ...snapshot, receivedAt: performance.now() };
         },
-        onDied: () => showJoinScreen('You were eaten! Play again?'),
-        onDisconnect: () => showJoinScreen('Connection lost. Reconnecting...')
+        onDied: () => showJoinScreen('FLATLINED // JACK IN AGAIN?'),
+        onDisconnect: () => showJoinScreen('SIGNAL LOST // RECONNECTING...')
     });
 }
 
@@ -129,7 +130,7 @@ async function initGame() {
 
         // Start game loop
         console.log('Starting game loop');
-        showJoinScreen('Join the game');
+        showJoinScreen('JACK IN TO THE GRID');
         gameLoop();
     } catch (error) {
         console.error('Error initializing game:', error);
