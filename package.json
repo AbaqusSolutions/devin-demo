@@ -4,17 +4,25 @@
   "description": "Agar.io clone game",
   "main": "app.py",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
     "@babel/core": "^7.23.2",
     "@babel/preset-env": "^7.23.2",
+    "@playwright/test": "^1.65.1",
     "babel-jest": "^29.7.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0"
   },
   "jest": {
     "testEnvironment": "jsdom",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/.worktrees/"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/tests/e2e/"
+    ],
     "moduleNameMapper": {
       "\\.(css|less|scss|sass)$": "<rootDir>/__mocks__/styleMock.js"
     },

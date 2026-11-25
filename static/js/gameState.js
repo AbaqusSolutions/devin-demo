@@ -1,20 +1,17 @@
-import { WORLD_SIZE, STARTING_SCORE } from './config.js';
-
 export const gameState = {
-    playerCells: [{
-        x: WORLD_SIZE / 2,
-        y: WORLD_SIZE / 2,
-        score: STARTING_SCORE,
-        velocityX: 0,
-        velocityY: 0
-    }],
-    playerName: 'Devin Desktop',
+    myId: null,
+    alive: false,
     camera: {
         x: 0,
         y: 0
     },
+    // Last two snapshots received from the server, used for interpolation
+    prevSnapshot: null,
+    currSnapshot: null,
+    // Interpolated view for the current frame
+    players: [],
     food: [],
-    aiPlayers: []
+    leaderboard: []
 };
 
 export const mouse = { x: 0, y: 0 };

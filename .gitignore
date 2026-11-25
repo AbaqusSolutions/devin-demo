@@ -3,6 +3,8 @@ node_modules/
 
 # Testing
 coverage/
+playwright-report/
+test-results/
 
 # Production
 build/
@@ -40,3 +42,6 @@ instance/
 venv/
 env/
 ENV/
+
+# Git worktrees
+.worktrees/
